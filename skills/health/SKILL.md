@@ -129,7 +129,7 @@ for f in {vocabulary.notes}/*.md; do
   [[ -f "$f" ]] || continue
   basename=$(basename "$f" .md)
   # Search for [[basename]] in all other files
-  count=$(rg -l "\[\[$basename\]\]" --glob '*.md' | grep -v "$f" | wc -l | tr -d ' ')
+  count=$(rg -F -l "[[$basename]]" --glob '*.md' | grep -v "$f" | wc -l | tr -d ' ')
   if [[ "$count" -eq 0 ]]; then
     echo "WARN: $f — no incoming links (orphan)"
   fi
@@ -170,7 +170,7 @@ rg -oN '\[\[([^\]]+)\]\]' --glob '*.md' -r '$1' | sort -u | while read target; d
   if [[ -z "$found" ]]; then
     echo "FAIL: dangling link [[${target}]] — no file found"
     # Show which files contain this dangling link
-    rg -l "\[\[$target\]\]" --glob '*.md'
+    rg -F -l "[[$target]]" --glob '*.md'
   fi
 done
 ```
@@ -410,7 +410,7 @@ for f in {vocabulary.notes}/*.md; do
   mod_days=$(( ($(date +%s) - $(stat -f %m "$f" 2>/dev/null || stat -c %Y "$f" 2>/dev/null)) / 86400 ))
 
   # Incoming link count
-  incoming=$(rg -l "\[\[$basename\]\]" --glob '*.md' | grep -v "$f" | wc -l | tr -d ' ')
+  incoming=$(rg -F -l "[[$basename]]" --glob '*.md' | grep -v "$f" | wc -l | tr -d ' ')
 
   if [[ $mod_days -gt 30 ]] && [[ $incoming -lt 2 ]]; then
     echo "STALE: $f — $mod_days days old, $incoming incoming links"
@@ -463,7 +463,7 @@ for moc in {vocabulary.notes}/*.md; do
   moc_name=$(basename "$moc" .md)
 
   # Count notes linking to this topic map
-  note_count=$(rg -l "\[\[$moc_name\]\]" {vocabulary.notes}/ --glob '*.md' | grep -v "$moc" | wc -l | tr -d ' ')
+  note_count=$(rg -F -l "[[$moc_name]]" {vocabulary.notes}/ --glob '*.md' | grep -v "$moc" | wc -l | tr -d ' ')
 
   echo "$moc_name: $note_count notes"
 done
